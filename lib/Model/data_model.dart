@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
@@ -19,87 +20,34 @@ class Data {
   );
 
   late String criteria;
-  int y1A;
-  int y1P;
-  int y2A;
-  int y2P;
-  int y3A;
-  int y3P;
-  int F1A;
-  int F1P;
-  int F2A;
-  int F2P;
-  int F3A;
-  int F3P;
+  double y1A;
+  double y1P;
+  double y2A;
+  double y2P;
+  double y3A;
+  double y3P;
+  double F1A;
+  double F1P;
+  double F2A;
+  double F2P;
+  double F3A;
+  double F3P;
 
   DataGridRow getDataGridRow() {
     return DataGridRow(cells: <DataGridCell>[
       DataGridCell<String>(columnName: 'criteria', value: criteria),
-      DataGridCell<int>(columnName: 'y1Amount', value: y1A),
-      DataGridCell<int>(columnName: 'y1Percentage', value: y1P),
-      DataGridCell<int>(columnName: 'y2Amount', value: y2A),
-      DataGridCell<int>(columnName: 'y2Percentage', value: y2P),
-      DataGridCell<int>(columnName: 'y3Amount', value: y3A),
-      DataGridCell<int>(columnName: 'y3Percentage', value: y3P),
-      DataGridCell<int>(columnName: 'Forecast1A', value: F1A),
-      DataGridCell<int>(columnName: 'Forecast1P', value: F1P),
-      DataGridCell<int>(columnName: 'Forecast2A', value: F2A),
-      DataGridCell<int>(columnName: 'Forecast2P', value: F2P),
-      DataGridCell<int>(columnName: 'Forecast3A', value: F3A),
-      DataGridCell<int>(columnName: 'Forecast3P', value: F3P),
+      DataGridCell<double>(columnName: 'y1Amount', value: y1A),
+      DataGridCell<double>(columnName: 'y1Percentage', value: y1P),
+      DataGridCell<double>(columnName: 'y2Amount', value: y2A),
+      DataGridCell<double>(columnName: 'y2Percentage', value: y2P),
+      DataGridCell<double>(columnName: 'y3Amount', value: y3A),
+      DataGridCell<double>(columnName: 'y3Percentage', value: y3P),
+      DataGridCell<double>(columnName: 'Forecast1A', value: F1A),
+      DataGridCell<double>(columnName: 'Forecast1P', value: F1P),
+      DataGridCell<double>(columnName: 'Forecast2A', value: F2A),
+      DataGridCell<double>(columnName: 'Forecast2P', value: F2P),
+      DataGridCell<double>(columnName: 'Forecast3A', value: F3A),
+      DataGridCell<double>(columnName: 'Forecast3P', value: F3P),
     ]);
   }
 }
-
-// class DataSource extends DataGridSource {
-//   DataSource(List<Data> data) {
-//     dataGridRows = data
-//         .map<DataGridRow>((dataGridRow) => DataGridRow(cells: [
-//               DataGridCell<String>(
-//                   columnName: 'criteria', value: criteria),
-//               DataGridCell<int>(columnName: 'y1Amount', value: y1A),
-//               DataGridCell<int>(
-//                   columnName: 'y1Percentage', value: y1P),
-//               DataGridCell<int>(columnName: 'y2Amount', value: y2A),
-//               DataGridCell<int>(
-//                   columnName: 'y2Percentage', value: y2P),
-//               DataGridCell<int>(columnName: 'y3Amount', value: y3A),
-//               DataGridCell<int>(
-//                   columnName: 'y3Percentage', value: y3P),
-//               DataGridCell<int>(
-//                   columnName: 'Forecast2A', value: F1A),
-//               DataGridCell<int>(
-//                   columnName: 'Forecast1P', value: F1P),
-//               DataGridCell<int>(
-//                   columnName: 'Forecast2A', value: F2A),
-//               DataGridCell<int>(
-//                   columnName: 'Forecast2P', value: F2P),
-//               DataGridCell<int>(
-//                   columnName: 'Forecast2A', value: F3A),
-//               DataGridCell<int>(
-//                   columnName: 'Forecast3P', value: F3P),
-//             ]))
-//         .toList();
-//   }
-
-//   late List<DataGridRow> dataGridRows;
-//   @override
-//   List<DataGridRow> get rows => dataGridRows;
-
-//   @override
-//   DataGridRowAdapter? buildRow(DataGridRow row) {
-//     return DataGridRowAdapter(
-//         cells: row.getCells().map<Widget>((dataGridCell) {
-//       return Container(
-//           padding: EdgeInsets.symmetric(horizontal: 8.0),
-//           alignment: (dataGridCell.columnName == 'id' ||
-//                   dataGridCell.columnName == 'salary')
-//               ? Alignment.centerRight
-//               : Alignment.centerLeft,
-//           child: Text(
-//             dataGridCell.value.toString(),
-//             overflow: TextOverflow.ellipsis,
-//           ));
-//     }).toList());
-//   }
-// }

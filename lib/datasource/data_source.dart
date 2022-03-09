@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +13,40 @@ class DataSource extends DataGridSource {
   }
 
   List<Data> _data = [];
+
+  databaseset() async {
+    Map<String, Object> data = {};
+    for (var i in _data) {
+      data = {
+        'criteria': i.criteria,
+        'y1A': i.y1A,
+        'y1P': i.y1P,
+        'y2A': i.y2A,
+        'y2P': i.y2P,
+        'y3A': i.y3A,
+        'y3P': i.y3P,
+        'F1A': i.F1A,
+        'F1P': i.F1P,
+        'F2A': i.F2A,
+        'F2P': i.F2P,
+        'F3A': i.F3A,
+        'F3P': i.F3P,
+      };
+
+      print(data);
+
+      await FirebaseFirestore.instance
+          .collection('data')
+          .get()
+          .then((snapshot) {
+        for (DocumentSnapshot ds in snapshot.docs) {
+          if (ds.get('criteria') == data['criteria']) {
+            ds.reference.update(data);
+          }
+        }
+      });
+    }
+  }
 
   List<DataGridRow> dataGridRows = [];
 
@@ -44,13 +79,34 @@ class DataSource extends DataGridSource {
     double val;
     if (column == 'y2Amount') {
       return val =
-          (_data[rowIndex].y2P - _data[rowIndex].y1P) / _data[rowIndex].y2P;
+          ((_data[rowIndex].y2A - _data[rowIndex].y1A) / _data[rowIndex].y1A) *
+              100;
+    }
+    if (column == 'y3Amount') {
+      return val =
+          ((_data[rowIndex].y3A - _data[rowIndex].y2A) / _data[rowIndex].y2A) *
+              100;
+    }
+    if (column == 'Forecast1A') {
+      return val =
+          ((_data[rowIndex].F1A - _data[rowIndex].y3A) / _data[rowIndex].y3A) *
+              100;
+    }
+    if (column == 'Forecast2A') {
+      return val =
+          ((_data[rowIndex].F2A - _data[rowIndex].F1A) / _data[rowIndex].F2A) *
+              100;
+    }
+    if (column == 'Forecast3A') {
+      return val =
+          ((_data[rowIndex].F3A - _data[rowIndex].F2A) / _data[rowIndex].F2A) *
+              100;
     }
   }
 
   @override
   void onCellSubmit(DataGridRow dataGridRow, RowColumnIndex rowColumnIndex,
-      GridColumn column) {
+      GridColumn column) async {
     final dynamic oldValue = dataGridRow
             .getCells()
             .firstWhereOrNull((DataGridCell dataGridCell) =>
@@ -64,61 +120,97 @@ class DataSource extends DataGridSource {
     }
     if (column.columnName == 'y1Amount') {
       dataGridRows[dataRowIndex].getCells()[rowColumnIndex.columnIndex] =
-          DataGridCell<int>(columnName: 'y1Amount', value: newCellValue);
-      _data[dataRowIndex].y1A = newCellValue as int;
+          DataGridCell<double>(columnName: 'y1Amount', value: newCellValue);
+      _data[dataRowIndex].y1A = newCellValue as double;
+      var updatedVal =
+          update('y1Amount', rowColumnIndex.columnIndex, dataRowIndex);
+      dataGridRows[dataRowIndex].getCells()[rowColumnIndex.columnIndex + 1] =
+          DataGridCell<double>(
+              columnName: 'y1Percentage', value: _data[dataRowIndex].y1P);
+      _data[dataRowIndex].y1P = updatedVal.round();
     } else if (column.columnName == 'y1Percentage') {
       dataGridRows[dataRowIndex].getCells()[rowColumnIndex.columnIndex] =
-          DataGridCell<int>(columnName: 'y1Percentage', value: newCellValue);
-      _data[dataRowIndex].y1P = newCellValue as int;
+          DataGridCell<double>(columnName: 'y1Percentage', value: newCellValue);
+      _data[dataRowIndex].y1P = newCellValue as double;
     } else if (column.columnName == 'y2Amount') {
       dataGridRows[dataRowIndex].getCells()[rowColumnIndex.columnIndex] =
-          DataGridCell<int>(columnName: 'y2Amount', value: newCellValue);
-      _data[dataRowIndex].y2A = newCellValue as int;
+          DataGridCell<double>(columnName: 'y2Amount', value: newCellValue);
+      _data[dataRowIndex].y2A = newCellValue as double;
       var updatedVal =
           update('y2Amount', rowColumnIndex.columnIndex, dataRowIndex);
 
       dataGridRows[dataRowIndex].getCells()[rowColumnIndex.columnIndex + 1] =
-          DataGridCell<int>(
+          DataGridCell<double>(
               columnName: 'y2Percentage', value: _data[dataRowIndex].y2P);
-      _data[dataRowIndex].y2P = updatedVal as int;
+      _data[dataRowIndex].y2P = updatedVal.round();
+      // print(" function");
+      // print(updatedVal);
+      // print(rowColumnIndex.columnIndex);
+      // print(dataRowIndex);
     } else if (column.columnName == 'y2Percentage') {
-      dataGridRows[dataRowIndex].getCells()[rowColumnIndex.columnIndex + 1] =
-          DataGridCell<int>(
+      dataGridRows[dataRowIndex].getCells()[rowColumnIndex.columnIndex] =
+          DataGridCell<double>(
               columnName: 'y2Percentage', value: _data[dataRowIndex].y2P);
-      _data[dataRowIndex].y2P = newCellValue as int;
+      _data[dataRowIndex].y2P = newCellValue as double;
     } else if (column.columnName == 'y3Amount') {
       dataGridRows[dataRowIndex].getCells()[rowColumnIndex.columnIndex] =
-          DataGridCell<int>(columnName: 'y3Amount', value: newCellValue);
-      _data[dataRowIndex].y3A = newCellValue as int;
+          DataGridCell<double>(columnName: 'y3Amount', value: newCellValue);
+      _data[dataRowIndex].y3A = newCellValue as double;
+      var updatedVal =
+          update('y3Amount', rowColumnIndex.columnIndex, dataRowIndex);
+      dataGridRows[dataRowIndex].getCells()[rowColumnIndex.columnIndex + 1] =
+          DataGridCell<double>(
+              columnName: 'y3Percentage', value: _data[dataRowIndex].y3P);
+      _data[dataRowIndex].y3P = updatedVal.round();
+      print(updatedVal);
     } else if (column.columnName == 'y3Percentage') {
       dataGridRows[dataRowIndex].getCells()[rowColumnIndex.columnIndex] =
-          DataGridCell<int>(columnName: 'y3Percentage', value: newCellValue);
-      _data[dataRowIndex].y3P = newCellValue as int;
+          DataGridCell<double>(columnName: 'y3Percentage', value: newCellValue);
+      _data[dataRowIndex].y3P = newCellValue as double;
     } else if (column.columnName == 'Forecast1A') {
       dataGridRows[dataRowIndex].getCells()[rowColumnIndex.columnIndex] =
-          DataGridCell<int>(columnName: 'Forecast1A', value: newCellValue);
-      _data[dataRowIndex].F1A = newCellValue as int;
+          DataGridCell<double>(columnName: 'Forecast1A', value: newCellValue);
+      _data[dataRowIndex].F1A = newCellValue as double;
+      var updatedVal =
+          update('Forecast1A', rowColumnIndex.columnIndex, dataRowIndex);
+      dataGridRows[dataRowIndex].getCells()[rowColumnIndex.columnIndex + 1] =
+          DataGridCell<double>(
+              columnName: 'Forecast1P', value: _data[dataRowIndex].F1P);
+      _data[dataRowIndex].F1P = updatedVal.round();
     } else if (column.columnName == 'Forecast1P') {
       dataGridRows[dataRowIndex].getCells()[rowColumnIndex.columnIndex] =
-          DataGridCell<int>(columnName: 'Forecast1P', value: newCellValue);
-      _data[dataRowIndex].F1P = newCellValue as int;
+          DataGridCell<double>(columnName: 'Forecast1P', value: newCellValue);
+      _data[dataRowIndex].F1P = newCellValue as double;
     } else if (column.columnName == 'Forecast2A') {
       dataGridRows[dataRowIndex].getCells()[rowColumnIndex.columnIndex] =
-          DataGridCell<int>(columnName: 'Forecast2A', value: newCellValue);
-      _data[dataRowIndex].F2A = newCellValue as int;
+          DataGridCell<double>(columnName: 'Forecast2A', value: newCellValue);
+      _data[dataRowIndex].F2A = newCellValue as double;
+      var updatedVal =
+          update('Forecast2A', rowColumnIndex.columnIndex, dataRowIndex);
+      dataGridRows[dataRowIndex].getCells()[rowColumnIndex.columnIndex + 1] =
+          DataGridCell<double>(
+              columnName: 'Forecast2P', value: _data[dataRowIndex].F2P);
+      _data[dataRowIndex].F2P = updatedVal.round();
     } else if (column.columnName == 'Forecast2P') {
       dataGridRows[dataRowIndex].getCells()[rowColumnIndex.columnIndex] =
-          DataGridCell<int>(columnName: 'Forecast2P', value: newCellValue);
-      _data[dataRowIndex].F2P = newCellValue as int;
+          DataGridCell<double>(columnName: 'Forecast2P', value: newCellValue);
+      _data[dataRowIndex].F2P = newCellValue as double;
     } else if (column.columnName == 'Forecast3A') {
       dataGridRows[dataRowIndex].getCells()[rowColumnIndex.columnIndex] =
-          DataGridCell<int>(columnName: 'Forecast3A', value: newCellValue);
-      _data[dataRowIndex].F3A = newCellValue as int;
+          DataGridCell<double>(columnName: 'Forecast3A', value: newCellValue);
+      _data[dataRowIndex].F3A = newCellValue as double;
+      var updatedVal =
+          update('Forecast3A', rowColumnIndex.columnIndex, dataRowIndex);
+      dataGridRows[dataRowIndex].getCells()[rowColumnIndex.columnIndex + 1] =
+          DataGridCell<double>(
+              columnName: 'Forecast3P', value: _data[dataRowIndex].F3P);
+      _data[dataRowIndex].F3P = updatedVal.round();
     } else if (column.columnName == 'Forecast3P') {
       dataGridRows[dataRowIndex].getCells()[rowColumnIndex.columnIndex] =
-          DataGridCell<int>(columnName: 'Forecast3P', value: newCellValue);
-      _data[dataRowIndex].F3P = newCellValue as int;
+          DataGridCell<double>(columnName: 'Forecast3P', value: newCellValue);
+      _data[dataRowIndex].F3P = newCellValue as double;
     }
+    await databaseset();
   }
 
   @override
